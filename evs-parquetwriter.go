@@ -57,7 +57,6 @@ func (p *ParquetWriter) Init(binding string) error {
 // Event handler for new events.
 func (p *ParquetWriter) Event(ev *evs.Event, props map[string]string) error {
 
-	log.Printf("EVENT")
 	obs := p.f.Convert(ev)
 
 	err := p.writer.Write(obs)
@@ -66,6 +65,7 @@ func (p *ParquetWriter) Event(ev *evs.Event, props map[string]string) error {
 	}
 
 	return nil
+	
 }
 
 func main() {
