@@ -25,14 +25,12 @@ type FlatEvent struct {
 	Id     string `parquet:"name=id, type=UTF8, encoding=PLAIN_DICTIONARY"`
 	Action string `parquet:"name=action, type=UTF8, encoding=PLAIN_DICTIONARY"`
 	Device string `parquet:"name=device, type=UTF8, encoding=PLAIN_DICTIONARY"`
-	Time   string `parquet:"name=time, type=UTF8, encoding=PLAIN_DICTIONARY"`
+	// Would like to use TIMESTAMP_MICROS but Spark isn't happy about that.
+	Time int64 `parquet:"name=time_micros, type=TIMESTAMP_MICROS"`
 	Origin string `parquet:"name=origin, type=UTF8, encoding=PLAIN_DICTIONARY"`
 
-	// Time in minutes since 1970, and microseconds since 1970.
+	// Time in minutes since 1970.
 	TimeMins int32 `parquet:"name=time_mins, type=INT32"`
-
-	// Would like to use TIMESTAMP_MICROS but Spark isn't happy about that.
-	TimeMicros int64 `parquet:"name=time_micros, type=TIME_MICROS"`
 
 	Network string  `parquet:"name=network, type=UTF8, encoding=PLAIN_DICTIONARY"`
 	Url     string  `parquet:"name=url, type=UTF8, encoding=PLAIN_DICTIONARY"`
@@ -465,7 +463,6 @@ func (f *Flattener) Convert(ev *evs.Event) *FlatEvent {
 		Id:      ev.Id,
 		Action:  ev.Action.String(),
 		Device:  ev.Device,
-		Time:    tm.Format("2006-01-02T15:04:05.999Z"),
 		Network: ev.Network,
 		Url:     ev.Url,
 //		Risk:    ev.Risk,
@@ -473,7 +470,7 @@ func (f *Flattener) Convert(ev *evs.Event) *FlatEvent {
 	}
 
 	nanos := tm.UnixNano()
-	oe.TimeMicros = nanos / 1000
+	oe.Time = nanos / 1000
 	oe.TimeMins = int32(nanos / 1000000000 / 60)
 
 	f.FlattenSrc(ev, oe)
