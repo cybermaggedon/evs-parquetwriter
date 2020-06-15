@@ -104,8 +104,6 @@ func (w *Writer) Close() error {
 
 func (w *Writer) Write(d interface{}) error {
 
-	log.Print("Size: ", w.batch_count, " ", w.flush_count)
-
 	if (uint64(w.batch_count) > w.flush_count) ||
 		(time.Since(w.batch_start) > w.flush_interval) {
 
