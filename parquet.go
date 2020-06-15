@@ -4,6 +4,7 @@ package main
 
 import (
 	"time"
+	"log"
 	"github.com/google/uuid"
 	"github.com/xitongsys/parquet-go-source/local"
 	"github.com/xitongsys/parquet-go/writer"
@@ -18,7 +19,7 @@ type Writer struct {
 	file  source.ParquetFile
 	writer *writer.ParquetWriter
 
-	batch_size uint64
+	batch_count uint64
 	batch_start time.Time
 }
 
@@ -48,6 +49,8 @@ func (w *Writer) OpenFile() error {
 		return err
 	}
 
+	log.Print("Started writing new file ", path)
+
 	// Parquet writer
 	writer, err := writer.NewParquetWriter(file, new(FlatEvent),
 		w.output_threads)
@@ -62,7 +65,7 @@ func (w *Writer) OpenFile() error {
 	w.file = file
 	w.writer = writer
 
-	w.batch_size = 0
+	w.batch_count = 0
 	w.batch_start = time.Now()
 
 	return nil
@@ -101,7 +104,9 @@ func (w *Writer) Close() error {
 
 func (w *Writer) Write(d interface{}) error {
 
-	if (w.batch_size > w.flush_size) ||
+	log.Print("Size: ", w.batch_count, " ", w.flush_count)
+
+	if (uint64(w.batch_count) > w.flush_count) ||
 		(time.Since(w.batch_start) > w.flush_interval) {
 
 		err := w.Close()
@@ -109,7 +114,10 @@ func (w *Writer) Write(d interface{}) error {
 			return err
 		}
 
-		w.OpenFile()
+		err = w.OpenFile()
+		if err != nil {
+			return err
+		}
 
 	}
 
@@ -117,6 +125,9 @@ func (w *Writer) Write(d interface{}) error {
 	if err != nil {
 		return err
 	}
+
+	w.batch_count += 1
+
 	return nil
 
 }

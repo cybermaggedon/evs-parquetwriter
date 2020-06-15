@@ -235,27 +235,37 @@ func (f *Flattener) FlattenDnsMessage(ev *evs.Event, oe *FlatEvent) {
 	if len(msg.Answer) >= 1 {
 		ans := msg.Answer[0]
 		oe.DnsMessageAnswerName0 = ans.Name
-		oe.DnsMessageAnswerAddress0 = evs.AddressToString(ans.Address)
+		if ans.Address != nil {
+			oe.DnsMessageAnswerAddress0 = evs.AddressToString(ans.Address)
+		}
 	}
 	if len(msg.Answer) >= 2 {
 		ans := msg.Answer[1]
 		oe.DnsMessageAnswerName1 = ans.Name
-		oe.DnsMessageAnswerAddress1 = evs.AddressToString(ans.Address)
+		if ans.Address != nil {
+			oe.DnsMessageAnswerAddress1 = evs.AddressToString(ans.Address)
+		}
 	}
 	if len(msg.Answer) >= 3 {
 		ans := msg.Answer[2]
 		oe.DnsMessageAnswerName2 = ans.Name
-		oe.DnsMessageAnswerAddress2 = evs.AddressToString(ans.Address)
+		if ans.Address != nil {
+			oe.DnsMessageAnswerAddress2 = evs.AddressToString(ans.Address)
+		}
 	}
 	if len(msg.Answer) >= 4 {
 		ans := msg.Answer[3]
 		oe.DnsMessageAnswerName3 = ans.Name
-		oe.DnsMessageAnswerAddress3 = evs.AddressToString(ans.Address)
+		if ans.Address != nil {
+			oe.DnsMessageAnswerAddress3 = evs.AddressToString(ans.Address)
+		}
 	}
 	if len(msg.Answer) >= 5 {
 		ans := msg.Answer[4]
 		oe.DnsMessageAnswerName4 = ans.Name
-		oe.DnsMessageAnswerAddress4 = evs.AddressToString(ans.Address)
+		if ans.Address != nil {
+			oe.DnsMessageAnswerAddress4 = evs.AddressToString(ans.Address)
+		}
 	}
 
 }

@@ -29,11 +29,11 @@ func (p *ParquetWriter) Init(binding string) error {
 
 	wr := NewWriter()
 
-	if val, ok := os.LookupEnv("PARQUET_FLUSH_SIZE"); ok {
+	if val, ok := os.LookupEnv("PARQUET_FLUSH_COUNT"); ok {
 		var v datasize.ByteSize
 		_ = v.UnmarshalText([]byte(val))
-		log.Printf("Flush size is %d", v.Bytes())
-		wr = wr.FlushSize(v.Bytes())
+		log.Printf("Flush count is %d", v.Bytes())
+		wr = wr.FlushCount(v.Bytes())
 	}
 	if val, ok := os.LookupEnv("PARQUET_FLUSH_INTERVAL"); ok {
 		dur, _ := time.ParseDuration(val)

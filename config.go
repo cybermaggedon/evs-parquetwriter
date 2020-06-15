@@ -5,7 +5,7 @@ import (
 )
 
 type WriterConfig struct {
-	flush_size uint64
+	flush_count uint64
 	flush_interval  time.Duration
 	directory  string
 	output_threads int64
@@ -14,14 +14,14 @@ type WriterConfig struct {
 func NewWriter() *WriterConfig {
 	return &WriterConfig{
 		directory: ".",
-		flush_size: 10 * 1024 * 1024,
+		flush_count: 1 * 1000 * 1000, // 1M
 		flush_interval: time.Duration(5 * time.Minute),
 		output_threads: 4,
 	}
 }
 
-func (wc WriterConfig) FlushSize(val uint64) *WriterConfig {
-	wc.flush_size = val
+func (wc WriterConfig) FlushCount(val uint64) *WriterConfig {
+	wc.flush_count = val
 	return &wc
 }
 
