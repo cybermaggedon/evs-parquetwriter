@@ -14,7 +14,9 @@ evs-parquetwriter: ${SOURCE} go.mod go.sum
 
 build: evs-parquetwriter
 	${DOCKER} build -t ${REPO}:${VERSION} -f Dockerfile .
+	${DOCKER} tag ${REPO}:${VERSION} ${REPO}:latest
 
 push:
 	${DOCKER} push ${REPO}:${VERSION}
+	${DOCKER} push ${REPO}:latest
 
