@@ -8,6 +8,7 @@ package main
 import (
 	"encoding/base64"
 	evs "github.com/cybermaggedon/evs-golang-api"
+	pb "github.com/cybermaggedon/evs-golang-api/protos"
 	"github.com/golang/protobuf/ptypes"
 )
 
@@ -26,7 +27,7 @@ type FlatEvent struct {
 	Action string `parquet:"name=action, type=UTF8, encoding=PLAIN_DICTIONARY"`
 	Device string `parquet:"name=device, type=UTF8, encoding=PLAIN_DICTIONARY"`
 	// Would like to use TIMESTAMP_MICROS but Spark isn't happy about that.
-	Time int64 `parquet:"name=time_micros, type=TIMESTAMP_MICROS"`
+	Time   int64  `parquet:"name=time_micros, type=TIMESTAMP_MICROS"`
 	Origin string `parquet:"name=origin, type=UTF8, encoding=PLAIN_DICTIONARY"`
 
 	// Time in minutes since 1970.
@@ -100,23 +101,23 @@ type FlatEvent struct {
 	IcmpType    int32  `parquet:"name=icmp_type, type=INT32"`
 
 	// Location
-	LocationDestAccuracy    int32   `parquet:"name=location_dest_accuracy, type=INT32"`
-	LocationDestAsnum       string  `parquet:"name=location_dest_asnum, type=UTF8, encoding=PLAIN_DICTIONARY"`
-	LocationDestAsorg       string  `parquet:"name=location_dest_asorg, type=UTF8, encoding=PLAIN_DICTIONARY"`
-	LocationDestCity        string  `parquet:"name=location_dest_city, type=UTF8, encoding=PLAIN_DICTIONARY"`
-	LocationDestCountry     string  `parquet:"name=location_dest_country, type=UTF8, encoding=PLAIN_DICTIONARY"`
-	LocationDestIso         string  `parquet:"name=location_dest_iso, type=UTF8, encoding=PLAIN_DICTIONARY"`
-	LocationDestLat float32 `parquet:"name=location_dest_lat, type=FLOAT"`
-	LocationDestLon float32 `parquet:"name=location_dest_lon, type=FLOAT"`
-	LocationDestPostcode    string  `parquet:"name=location_dest_postcode, type=UTF8, encoding=PLAIN_DICTIONARY"`
-	LocationSrcAsnum        string  `parquet:"name=location_src_asnum, type=UTF8, encoding=PLAIN_DICTIONARY"`
-	LocationSrcAsorg        string  `parquet:"name=location_src_asorg, type=UTF8, encoding=PLAIN_DICTIONARY"`
-	LocationSrcCity         string  `parquet:"name=location_src_city, type=UTF8, encoding=PLAIN_DICTIONARY"`
-	LocationSrcCountry      string  `parquet:"name=location_src_country, type=UTF8, encoding=PLAIN_DICTIONARY"`
-	LocationSrcIso          string  `parquet:"name=location_src_iso, type=UTF8, encoding=PLAIN_DICTIONARY"`
-	LocationSrcLat  float32 `parquet:"name=location_src_lat, type=FLOAT"`
-	LocationSrcLon  float32 `parquet:"name=location_src_lon, type=FLOAT"`
-	LocationSrcPostcode     string  `parquet:"name=location_src_postcode, type=UTF8, encoding=PLAIN_DICTIONARY"`
+	LocationDestAccuracy int32   `parquet:"name=location_dest_accuracy, type=INT32"`
+	LocationDestAsnum    string  `parquet:"name=location_dest_asnum, type=UTF8, encoding=PLAIN_DICTIONARY"`
+	LocationDestAsorg    string  `parquet:"name=location_dest_asorg, type=UTF8, encoding=PLAIN_DICTIONARY"`
+	LocationDestCity     string  `parquet:"name=location_dest_city, type=UTF8, encoding=PLAIN_DICTIONARY"`
+	LocationDestCountry  string  `parquet:"name=location_dest_country, type=UTF8, encoding=PLAIN_DICTIONARY"`
+	LocationDestIso      string  `parquet:"name=location_dest_iso, type=UTF8, encoding=PLAIN_DICTIONARY"`
+	LocationDestLat      float32 `parquet:"name=location_dest_lat, type=FLOAT"`
+	LocationDestLon      float32 `parquet:"name=location_dest_lon, type=FLOAT"`
+	LocationDestPostcode string  `parquet:"name=location_dest_postcode, type=UTF8, encoding=PLAIN_DICTIONARY"`
+	LocationSrcAsnum     string  `parquet:"name=location_src_asnum, type=UTF8, encoding=PLAIN_DICTIONARY"`
+	LocationSrcAsorg     string  `parquet:"name=location_src_asorg, type=UTF8, encoding=PLAIN_DICTIONARY"`
+	LocationSrcCity      string  `parquet:"name=location_src_city, type=UTF8, encoding=PLAIN_DICTIONARY"`
+	LocationSrcCountry   string  `parquet:"name=location_src_country, type=UTF8, encoding=PLAIN_DICTIONARY"`
+	LocationSrcIso       string  `parquet:"name=location_src_iso, type=UTF8, encoding=PLAIN_DICTIONARY"`
+	LocationSrcLat       float32 `parquet:"name=location_src_lat, type=FLOAT"`
+	LocationSrcLon       float32 `parquet:"name=location_src_lon, type=FLOAT"`
+	LocationSrcPostcode  string  `parquet:"name=location_src_postcode, type=UTF8, encoding=PLAIN_DICTIONARY"`
 
 	// NTP
 	NtpTimestampMode    int32 `parquet:"name=ntp_timestamp_mode, type=INT32"`
@@ -173,19 +174,19 @@ func Debase64(in string) string {
 }
 
 // Flatten the source addresses
-func (f *Flattener) FlattenSrc(ev *evs.Event, oe *FlatEvent) {
+func (f *Flattener) FlattenSrc(ev *pb.Event, oe *FlatEvent) {
 	for _, v := range ev.Src {
 		switch v.Protocol {
-		case evs.Protocol_ipv4:
+		case pb.Protocol_ipv4:
 			oe.SrcIpv4 = evs.Int32ToIp(v.Address.GetIpv4()).String()
 			break
-		case evs.Protocol_ipv6:
+		case pb.Protocol_ipv6:
 			oe.SrcIpv6 = evs.BytesToIp(v.Address.GetIpv6()).String()
 			break
-		case evs.Protocol_tcp:
+		case pb.Protocol_tcp:
 			oe.SrcTcp = int32(v.Address.GetPort())
 			break
-		case evs.Protocol_udp:
+		case pb.Protocol_udp:
 			oe.SrcUdp = int32(v.Address.GetPort())
 			break
 		default:
@@ -194,21 +195,21 @@ func (f *Flattener) FlattenSrc(ev *evs.Event, oe *FlatEvent) {
 }
 
 // Flatten the destination addresses
-func (f *Flattener) FlattenDest(ev *evs.Event, oe *FlatEvent) {
+func (f *Flattener) FlattenDest(ev *pb.Event, oe *FlatEvent) {
 	for _, v := range ev.Dest {
 		switch v.Protocol {
-		case evs.Protocol_ipv4:
+		case pb.Protocol_ipv4:
 			ip := evs.Int32ToIp(v.Address.GetIpv4())
 			oe.DestIpv4 = ip.String()
 			break
-		case evs.Protocol_ipv6:
+		case pb.Protocol_ipv6:
 			ip := evs.BytesToIp(v.Address.GetIpv6())
 			oe.DestIpv6 = ip.String()
 			break
-		case evs.Protocol_tcp:
+		case pb.Protocol_tcp:
 			oe.DestTcp = int32(v.Address.GetPort())
 			break
-		case evs.Protocol_udp:
+		case pb.Protocol_udp:
 			oe.DestUdp = int32(v.Address.GetPort())
 			break
 		default:
@@ -217,12 +218,12 @@ func (f *Flattener) FlattenDest(ev *evs.Event, oe *FlatEvent) {
 }
 
 // Flatten DNS information
-func (f *Flattener) FlattenDnsMessage(ev *evs.Event, oe *FlatEvent) {
+func (f *Flattener) FlattenDnsMessage(ev *pb.Event, oe *FlatEvent) {
 
 	msg := ev.GetDnsMessage()
 
 	oe.DnsMessageType = msg.Type.String()
-	
+
 	if len(msg.Query) >= 1 {
 		qry := msg.Query[0]
 		oe.DnsMessageQueryName0 = qry.Name
@@ -327,7 +328,7 @@ func (f *Flattener) FlattenHttpHeader(header map[string]string, oe *FlatEvent) {
 }
 
 // Flatten an HTTP request
-func (f *Flattener) FlattenHttpRequest(ev *evs.Event, oe *FlatEvent) {
+func (f *Flattener) FlattenHttpRequest(ev *pb.Event, oe *FlatEvent) {
 	msg := ev.GetHttpRequest()
 	oe.HttpRequestMethod = msg.Method
 	if f.WritePayloads {
@@ -337,7 +338,7 @@ func (f *Flattener) FlattenHttpRequest(ev *evs.Event, oe *FlatEvent) {
 }
 
 // Flatten an HTTP response
-func (f *Flattener) FlattenHttpResponse(ev *evs.Event, oe *FlatEvent) {
+func (f *Flattener) FlattenHttpResponse(ev *pb.Event, oe *FlatEvent) {
 	msg := ev.GetHttpResponse()
 	oe.HttpResponseStatus = msg.Status
 	oe.HttpResponseCode = int32(msg.Code)
@@ -348,7 +349,7 @@ func (f *Flattener) FlattenHttpResponse(ev *evs.Event, oe *FlatEvent) {
 }
 
 // Flatten ICMP information
-func (f *Flattener) FlattenIcmp(ev *evs.Event, oe *FlatEvent) {
+func (f *Flattener) FlattenIcmp(ev *pb.Event, oe *FlatEvent) {
 	msg := ev.GetIcmp()
 	oe.IcmpCode = int32(msg.Code)
 	oe.IcmpType = int32(msg.Type)
@@ -358,7 +359,7 @@ func (f *Flattener) FlattenIcmp(ev *evs.Event, oe *FlatEvent) {
 }
 
 // Flatten location information
-func (f *Flattener) FlattenLocation(ev *evs.Event, oe *FlatEvent) {
+func (f *Flattener) FlattenLocation(ev *pb.Event, oe *FlatEvent) {
 	if ev.Location.Src != nil {
 		oe.LocationSrcAsnum = ev.Location.Src.Asnum
 		oe.LocationSrcAsorg = ev.Location.Src.Asorg
@@ -382,14 +383,14 @@ func (f *Flattener) FlattenLocation(ev *evs.Event, oe *FlatEvent) {
 }
 
 // Flatten NTP information
-func (f *Flattener) FlattenNtpTimestamp(ev *evs.Event, oe *FlatEvent) {
+func (f *Flattener) FlattenNtpTimestamp(ev *pb.Event, oe *FlatEvent) {
 	msg := ev.GetNtpTimestamp()
 	oe.NtpTimestampMode = int32(msg.Mode)
 	oe.NtpTimestampVersion = int32(msg.Version)
 }
 
 // Flatten unrecognised datagram information
-func (f *Flattener) FlattenUnrecognisedDatagram(ev *evs.Event, oe *FlatEvent) {
+func (f *Flattener) FlattenUnrecognisedDatagram(ev *pb.Event, oe *FlatEvent) {
 
 	msg := ev.GetUnrecognisedDatagram()
 
@@ -397,13 +398,13 @@ func (f *Flattener) FlattenUnrecognisedDatagram(ev *evs.Event, oe *FlatEvent) {
 		oe.UnrecognisedDatagramPayload = string(msg.Payload)
 	}
 	// FIXME: Schema missing?
-//	oe.UnrecognisedDatagramPayloadLength = int64(msg.PayloadLength)
-//	oe.UnrecognisedDatagramPayloadSha1 = msg.PayloadHash
+	//	oe.UnrecognisedDatagramPayloadLength = int64(msg.PayloadLength)
+	//	oe.UnrecognisedDatagramPayloadSha1 = msg.PayloadHash
 
 }
 
 // Flatten an unrecognised stream
-func (f *Flattener) FlattenUnrecognisedStream(ev *evs.Event, oe *FlatEvent) {
+func (f *Flattener) FlattenUnrecognisedStream(ev *pb.Event, oe *FlatEvent) {
 
 	msg := ev.GetUnrecognisedStream()
 
@@ -411,13 +412,13 @@ func (f *Flattener) FlattenUnrecognisedStream(ev *evs.Event, oe *FlatEvent) {
 		oe.UnrecognisedStreamPayload = string(msg.Payload)
 	}
 	// FIXME: Schema missing?
-//	oe.UnrecognisedStreamPayloadLength = int64(msg.PayloadLength)
-//	oe.UnrecognisedStreamPayloadSha1 = msg.PayloadHash
+	//	oe.UnrecognisedStreamPayloadLength = int64(msg.PayloadLength)
+	//	oe.UnrecognisedStreamPayloadSha1 = msg.PayloadHash
 
 }
 
 // Flatten DNS information
-func (f *Flattener) FlattenIndicators(ev *evs.Event, oe *FlatEvent) {
+func (f *Flattener) FlattenIndicators(ev *pb.Event, oe *FlatEvent) {
 
 	if ev.Indicators != nil {
 
@@ -455,18 +456,18 @@ func (f *Flattener) FlattenIndicators(ev *evs.Event, oe *FlatEvent) {
 }
 
 // Flatten an Event, returns a FlatEvent.
-func (f *Flattener) Convert(ev *evs.Event) *FlatEvent {
+func (f *Flattener) Convert(ev *pb.Event) *FlatEvent {
 
 	tm, _ := ptypes.Timestamp(ev.Time)
-	
+
 	oe := &FlatEvent{
 		Id:      ev.Id,
 		Action:  ev.Action.String(),
 		Device:  ev.Device,
 		Network: ev.Network,
 		Url:     ev.Url,
-//		Risk:    ev.Risk,
-		Origin:  ev.Origin.String(),
+		//		Risk:    ev.Risk,
+		Origin: ev.Origin.String(),
 	}
 
 	nanos := tm.UnixNano()
@@ -477,25 +478,25 @@ func (f *Flattener) Convert(ev *evs.Event) *FlatEvent {
 	f.FlattenDest(ev, oe)
 
 	switch ev.Detail.(type) {
-	case *evs.Event_DnsMessage:
+	case *pb.Event_DnsMessage:
 		f.FlattenDnsMessage(ev, oe)
 		break
-	case *evs.Event_HttpRequest:
+	case *pb.Event_HttpRequest:
 		f.FlattenHttpRequest(ev, oe)
 		break
-	case *evs.Event_HttpResponse:
+	case *pb.Event_HttpResponse:
 		f.FlattenHttpResponse(ev, oe)
 		break
-	case *evs.Event_Icmp:
+	case *pb.Event_Icmp:
 		f.FlattenIcmp(ev, oe)
 		break
-	case *evs.Event_NtpTimestamp:
+	case *pb.Event_NtpTimestamp:
 		f.FlattenNtpTimestamp(ev, oe)
 		break
-	case *evs.Event_UnrecognisedDatagram:
+	case *pb.Event_UnrecognisedDatagram:
 		f.FlattenUnrecognisedDatagram(ev, oe)
 		break
-	case *evs.Event_UnrecognisedStream:
+	case *pb.Event_UnrecognisedStream:
 		f.FlattenUnrecognisedStream(ev, oe)
 		break
 	default:

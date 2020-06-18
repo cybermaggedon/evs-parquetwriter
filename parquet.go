@@ -3,20 +3,20 @@ package main
 // Parquet file writer.
 
 import (
-	"time"
-	"log"
 	"github.com/google/uuid"
 	"github.com/xitongsys/parquet-go-source/local"
-	"github.com/xitongsys/parquet-go/writer"
-	"github.com/xitongsys/parquet-go/source"
 	"github.com/xitongsys/parquet-go/parquet"
-	"path/filepath"
+	"github.com/xitongsys/parquet-go/source"
+	"github.com/xitongsys/parquet-go/writer"
+	"log"
 	"os"
+	"path/filepath"
+	"time"
 )
 
 type Writer struct {
-	WriterConfig
-	file  source.ParquetFile
+	*PWConfig
+	file   source.ParquetFile
 	writer *writer.ParquetWriter
 
 	batch_count uint64
@@ -72,10 +72,10 @@ func (w *Writer) OpenFile() error {
 
 }
 
-func (wc WriterConfig) Build() (*Writer, error) {
+func (wc *ParquetWriter) Build() (*Writer, error) {
 
 	w := &Writer{
-		WriterConfig: wc,
+		PWConfig: wc.PWConfig,
 	}
 
 	err := w.OpenFile()

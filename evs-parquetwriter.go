@@ -5,86 +5,83 @@
 package main
 
 import (
-	evs "github.com/cybermaggedon/evs-golang-api"
+	"github.com/cybermaggedon/evs-golang-api"
+	pb "github.com/cybermaggedon/evs-golang-api/protos"
 	"log"
-	"os"
-	"github.com/c2h5oh/datasize"
-	"time"
 )
-
-const ()
 
 type ParquetWriter struct {
 
-	// Embed EventAnalytic framework
-	evs.EventAnalytic
+	// Configuration
+	*PWConfig
 
+	// Event analytic framework
+	*evs.EventSubscriber
+	*evs.EventProducer
+	evs.Interruptible
+
+	// Flattener turns events into parquet model
 	f Flattener
 
+	// Parquet writer
 	writer *Writer
 }
 
 // Initialisation
-func (p *ParquetWriter) Init(binding string) error {
+func NewParquetWriter(pwc *PWConfig) *ParquetWriter {
 
-	wr := NewWriter()
-
-	if val, ok := os.LookupEnv("PARQUET_FLUSH_COUNT"); ok {
-		var v datasize.ByteSize
-		_ = v.UnmarshalText([]byte(val))
-		log.Printf("Flush count is %d", v.Bytes())
-		wr = wr.FlushCount(v.Bytes())
-	}
-	if val, ok := os.LookupEnv("PARQUET_FLUSH_INTERVAL"); ok {
-		dur, _ := time.ParseDuration(val)
-		log.Printf("Flush interval is %d seconds", int(dur.Seconds()))
-		wr = wr.FlushInterval(dur)
-	}
-	if val, ok := os.LookupEnv("PARQUET_DIRECTORY"); ok {
-		wr = wr.Directory(val)
-	}
+	p := &ParquetWriter{PWConfig: pwc}
 
 	var err error
-	p.writer, err = wr.Build()
+	p.EventSubscriber, err = evs.NewEventSubscriber(p.Name, p.Input, p)
 	if err != nil {
-		return err
+		log.Fatal(err)
 	}
 
-	p.EventAnalytic.Init(binding, []string{}, p)
-	return nil
+	p.EventProducer, err = evs.NewEventProducer(p.Name, p.Outputs)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	p.RegisterStop(p)
+
+	p.writer, err = p.Build()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return p
 }
 
 // Event handler for new events.
-func (p *ParquetWriter) Event(ev *evs.Event, props map[string]string) error {
+func (p *ParquetWriter) Event(ev *pb.Event, props map[string]string) error {
 
 	obs := p.f.Convert(ev)
 
 	err := p.writer.Write(obs)
-	if (err != nil) {
+	if err != nil {
 		return err
 	}
 
 	return nil
-	
+
+}
+
+func (p *ParquetWriter) Stop() {
+	p.writer.Close()
+	log.Print("Closed parquet file")
+	p.EventSubscriber.Stop()
 }
 
 func main() {
 
-	p := &ParquetWriter{}
+	gc := NewPWConfig()
 
-	binding, ok := os.LookupEnv("INPUT")
-	if !ok {
-		binding = "ioc"
-	}
+	g := NewParquetWriter(gc)
 
-	err := p.Init(binding)
-	if err != nil {
-		log.Printf("Init: %v", err)
-		return
-	}
+	log.Print("Initialisation complete")
 
-	log.Print("Initialisation complete.")
-
-	p.Run()
+	g.Run()
+	log.Print("Shutdown.")
 
 }
