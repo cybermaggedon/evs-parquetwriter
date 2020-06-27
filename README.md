@@ -43,7 +43,7 @@ The following environment variables are used to configure:
 
 | Variable | Purpose | Default |
 |----------|---------|---------|
-| `INPUT` | Specifies the Pulsar topic to subscribe to.  This is just the topic part of the URL e.g. `cyberprobe`. | `ioc` |
+| `INPUT` | Specifies the Pulsar topic to subscribe to.  This is just the topic part of the URL e.g. `cyberprobe`. | `withioc` |
 | `METRICS_PORT` | Specifies the port number to serve Prometheus metrics on.  If not set, metrics will not be served. The container has a default setting of 8088. | `8088` |
 | `PARQUET_DIRECTORY` | Specifies a directory to write parquet files to. | `.` |
 | `PARQUET_FLUSH_INTERVAL` | Duration between closing and opening a new parquet file. | `5M` |
