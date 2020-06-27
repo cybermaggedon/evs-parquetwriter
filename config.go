@@ -18,8 +18,10 @@ type PWConfig struct {
 
 func NewPWConfig() *PWConfig {
 
+	base := evs.NewConfig("evs-parquetwriter", "withioc", nil)
+
 	c := &PWConfig{
-		Config:         evs.NewConfig("evs-parquetwriter", "ioc"),
+		Config:         base,
 		directory:      ".",
 		flush_count:    1 * 1000 * 1000, // 1M
 		flush_interval: time.Duration(5 * time.Minute),
