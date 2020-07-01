@@ -48,8 +48,8 @@ github.com/chzyer/test v0.0.0-20180213035817-a1ea475d72b1/go.mod h1:Q3SI9o4m/ZMn
 github.com/client9/misspell v0.3.4/go.mod h1:qj6jICC3Q7zFZvVWo7KLAzC3yx5G7kyvSDkc90ppPyw=
 github.com/cncf/udpa/go v0.0.0-20191209042840-269d4d468f6f/go.mod h1:M8M6+tZqaGXZJjfX53e64911xZQV5JYwmTeXPW+k8Sc=
 github.com/colinmarc/hdfs/v2 v2.1.1/go.mod h1:M3x+k8UKKmxtFu++uAZ0OtDU8jR3jnaZIAc6yK4Ue0c=
-github.com/cybermaggedon/evs-golang-api v0.3.0 h1:PwlrQAQdTibGQreROBMGbwFHLILOi9RBAfqIKDnvbpQ=
-github.com/cybermaggedon/evs-golang-api v0.3.0/go.mod h1:KjMnuSblYcwt3wCTUBc+RTLL2oSl5kOey0q5sCkKjqE=
+github.com/cybermaggedon/evs-golang-api v0.4.0 h1:ywPuFttL3+kKfRdi8Q1gbErvsEmTOpW1JFWLIWRGf4U=
+github.com/cybermaggedon/evs-golang-api v0.4.0/go.mod h1:KjMnuSblYcwt3wCTUBc+RTLL2oSl5kOey0q5sCkKjqE=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=

@@ -33,12 +33,12 @@ func NewParquetWriter(pwc *PWConfig) *ParquetWriter {
 	p := &ParquetWriter{PWConfig: pwc}
 
 	var err error
-	p.EventSubscriber, err = evs.NewEventSubscriber(p.Name, p.Input, p)
+	p.EventSubscriber, err = evs.NewEventSubscriber(p, p)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	p.EventProducer, err = evs.NewEventProducer(p.Name, p.Outputs)
+	p.EventProducer, err = evs.NewEventProducer(p)
 	if err != nil {
 		log.Fatal(err)
 	}
